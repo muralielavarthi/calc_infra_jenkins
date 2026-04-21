@@ -1,42 +1,44 @@
 pipeline {
-    // agent label
     agent { label 'backend_ci' }
 
-     parameters {
+    parameters {
         choice(name: 'TF_ACTION', choices: ['apply', 'destroy'], description: 'Terraform action')
     }
 
-    // environment variables 
-    // these global variables can be accessed in all stages
     environment {
-        PROJECT_NAME = 'calc'
+        PROJECT_NAME  = 'calc'
         COMPONENT_NAME = 'backend'
-        APP_VERSION = ''
-        ACCOUNT_ID = '890742589086'
+        ACCOUNT_ID    = '890742589086'
     }
-    options{
-        ansiColor('xterm') // to enable colored output in console
+
+    options {
+        ansiColor('xterm')
     }
-    // stages
+
     stages {
         stage('terraform init') {
             steps {
                 script {
                     withAWS(credentials: 'aws-creds', region: 'us-east-1') {
-                        sh """cd 0-vpc && terraform init -reconfigure"""
+                        sh "cd 0-vpc && terraform init -reconfigure"
                     }
                 }
             }
         }
+
         stage('terraform plan') {
+            when {
+                expression { params.TF_ACTION == 'apply' }
+            }
             steps {
                 script {
                     withAWS(credentials: 'aws-creds', region: 'us-east-1') {
-                        sh """cd 0-vpc && terraform plan"""
+                        sh "cd 0-vpc && terraform plan"
                     }
                 }
             }
         }
+
         stage('terraform apply') {
             when {
                 expression { params.TF_ACTION == 'apply' }
@@ -48,11 +50,25 @@ pipeline {
             steps {
                 script {
                     withAWS(credentials: 'aws-creds', region: 'us-east-1') {
-                        sh """cd 0-vpc && terraform apply -auto-approve"""
+                        sh "cd 0-vpc && terraform apply -auto-approve"
                     }
                 }
             }
         }
+
+        stage('terraform plan destroy') {
+            when {
+                expression { params.TF_ACTION == 'destroy' }
+            }
+            steps {
+                script {
+                    withAWS(credentials: 'aws-creds', region: 'us-east-1') {
+                        sh "cd 0-vpc && terraform plan -destroy"
+                    }
+                }
+            }
+        }
+
         stage('terraform destroy') {
             when {
                 expression { params.TF_ACTION == 'destroy' }
@@ -64,12 +80,13 @@ pipeline {
             steps {
                 script {
                     withAWS(credentials: 'aws-creds', region: 'us-east-1') {
-                        sh """cd 0-vpc && terraform destroy -auto-approve"""
+                        sh "cd 0-vpc && terraform destroy -auto-approve"
                     }
                 }
             }
         }
     }
+
     post {
         always {
             echo "Cleaning up workspace..."

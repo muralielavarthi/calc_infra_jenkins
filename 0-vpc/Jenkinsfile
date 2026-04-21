@@ -2,6 +2,10 @@ pipeline {
     // agent label
     agent { label 'backend_ci' }
 
+     parameters {
+        choice(name: 'TF_ACTION', choices: ['apply', 'destroy'], description: 'Terraform action')
+    }
+
     // environment variables 
     // these global variables can be accessed in all stages
     environment {
@@ -34,6 +38,9 @@ pipeline {
             }
         }
         stage('terraform apply') {
+            when {
+                expression { params.TF_ACTION == 'apply' }
+            }
             input {
                 message "Do you want to apply the infra changes?"
                 ok "Apply"
@@ -47,6 +54,9 @@ pipeline {
             }
         }
         stage('terraform destroy') {
+            when {
+                expression { params.TF_ACTION == 'destroy' }
+            }
             input {
                 message "Do you want to destroy the infra?"
                 ok "Destroy"

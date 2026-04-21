@@ -46,5 +46,24 @@ pipeline {
                 }
             }
         }
+        stage('terraform destroy') {
+            input {
+                message "Do you want to destroy the infra?"
+                ok "Destroy"
+            }
+            steps {
+                script {
+                    withAWS(credentials: 'aws-creds', region: 'us-east-1') {
+                        sh """cd 0-vpc && terraform destroy -auto-approve"""
+                    }
+                }
+            }
+        }
+        post{
+            always {
+                echo "Cleaning up workspace..."
+                deleteDir() // Clean up the workspace after the build
+            }
+        }
     }
 }

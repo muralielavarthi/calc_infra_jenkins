@@ -19,7 +19,8 @@ pipeline {
             steps { 
                 script {
                 withAws(credentials: 'aws-creds', region: 'us-east-1') {
-                    sh """cd 0-vpc && terraform init -reconfigure"""
+                    sh """cd 0-vpc 
+                        terraform init -reconfigure"""
                 }
 
             }

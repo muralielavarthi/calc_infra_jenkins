@@ -10,9 +10,6 @@ pipeline {
         APP_VERSION = ''
         ACCOUNT_ID = '890742589086'
     }
-    options {
-        ansiColor(‘xterm’)
-    }
     // stages
     stages {
         stage('terraform init') {

@@ -15,7 +15,7 @@ pipeline {
         stage('terraform init') {
             steps {
                 script {
-                    withAws(credentials: 'aws-creds', region: 'us-east-1') {
+                    withAWS(credentials: 'aws-creds', region: 'us-east-1') {
                         sh """cd 0-vpc && terraform init -reconfigure"""
                     }
                 }
@@ -24,7 +24,7 @@ pipeline {
         stage('terraform plan') {
             steps {
                 script {
-                    withAws(credentials: 'aws-creds', region: 'us-east-1') {
+                    withAWS(credentials: 'aws-creds', region: 'us-east-1') {
                         sh """cd 0-vpc && terraform plan -var-file=dev.tfvars"""
                     }
                 }
@@ -37,7 +37,7 @@ pipeline {
             }
             steps {
                 script {
-                    withAws(credentials: 'aws-creds', region: 'us-east-1') {
+                    withAWS(credentials: 'aws-creds', region: 'us-east-1') {
                         sh """cd 0-vpc && terraform apply -auto-approve -var-file=dev.tfvars"""
                     }
                 }
